@@ -1,0 +1,17 @@
+[buckets]
+web_suffix = "web"
+tmp_suffix = "tmp"
+analysis_suffix = "analysis"
+
+[workflow]
+dataset_path = "cpgfewgenomes00fd84e4/test"
+output_prefix = "output"
+path_scheme = "hail-az"
+image_registry_prefix = "cpghailimages.azurecr.io"
+
+[hail]
+billing_project = "fewgenomes"
+bucket = "hail-az://cpgfewgenomes00fd84e4/test"
+
+[images]
+hail = "hailgenetics/hail:0.2.93"
