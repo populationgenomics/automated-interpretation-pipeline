@@ -1,4 +1,4 @@
-FROM australia-southeast1-docker.pkg.dev/analysis-runner/images/driver
+FROM australia-southeast1-docker.pkg.dev/analysis-runner/images/driver:latest
 
 COPY requirements.txt .
 COPY requirements-dev.txt .

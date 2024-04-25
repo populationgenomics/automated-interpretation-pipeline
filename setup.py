@@ -2,7 +2,6 @@
 automated installation instructions
 """
 
-
 from setuptools import find_packages, setup
 
 with open('README.md', encoding='utf-8') as handle:
@@ -20,23 +19,16 @@ def read_reqs(filename: str) -> list[str]:
         list[str]: the requirements
     """
     with open(filename, encoding='utf-8') as filehandler:
-        return [
-            line.strip()
-            for line in filehandler
-            if line.strip() and not line.startswith('#')
-        ]
+        return [line.strip() for line in filehandler if line.strip() and not line.startswith('#')]
 
 
 setup(
     name='automated-interpretation-pipeline',
     description='CPG Variant Prioritisation',
     long_description=readme,
-    version='3.2.1',
+    version='3.2.4',
     author='Matthew Welland, CPG',
-    author_email=(
-        'matthew.welland@populationgenomics.org.au, '
-        'cas.simons@populationgenomics.org.au'
-    ),
+    author_email=('matthew.welland@populationgenomics.org.au, ' 'cas.simons@populationgenomics.org.au'),
     package_data={'reanalysis': ['templates/*.jinja', 'reanalysis_global.toml']},
     url='https://github.com/populationgenomics/automated-interpretation-pipeline',
     license='MIT',

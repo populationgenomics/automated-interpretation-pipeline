@@ -2,9 +2,12 @@
 tests for clinvar manual summaries
 """
 
-
 from copy import deepcopy
 from datetime import datetime
+
+import zoneinfo
+
+TIMEZONE = zoneinfo.ZoneInfo('Australia/Brisbane')
 
 from reanalysis.summarise_clinvar_entries import (
     ACMG_THRESHOLD,
@@ -17,7 +20,7 @@ from reanalysis.summarise_clinvar_entries import (
     process_line,
 )
 
-CURRENT_TIME = datetime.now()
+CURRENT_TIME = datetime.now(tz=TIMEZONE)
 BASIC_SUB = Submission(CURRENT_TIME, 'submitter', Consequence.UNKNOWN, 'review')
 BENIGN_SUB = Submission(CURRENT_TIME, 'submitter', Consequence.BENIGN, 'review')
 PATH_SUB = Submission(CURRENT_TIME, 'submitter', Consequence.PATHOGENIC, 'review')
@@ -67,8 +70,8 @@ def test_check_stars_none():
 
     """
     sub1 = deepcopy(BASIC_SUB)
-    sub1.review_status = 'smithsonian'
-    subs = [BASIC_SUB, sub1, BASIC_SUB]
+    sub1.review_status = 'no assertion criteria provided'
+    subs = [sub1]
     assert check_stars(subs) == 0
 
 
@@ -81,9 +84,9 @@ def tests_acmg_filter_neutral():
 def tests_acmg_filter_removes():
     """filter submissions against ACMG date threshold"""
     sub1 = deepcopy(BASIC_SUB)
-    sub1.date = datetime(year=1970, month=1, day=1)
+    sub1.date = datetime(year=1970, month=1, day=1, tzinfo=TIMEZONE)
     sub2 = deepcopy(BASIC_SUB)
-    sub2.date = datetime(year=2000, month=1, day=1)
+    sub2.date = datetime(year=2000, month=1, day=1, tzinfo=TIMEZONE)
     subs = [BASIC_SUB, sub1, sub2]
     assert acmg_filter_submissions(subs) == [BASIC_SUB]
 
@@ -197,7 +200,7 @@ def test_process_line():
     allele, sub = process_line(input_list)
     assert allele == 1
     assert sub.classification == Consequence.PATHOGENIC
-    assert sub.date == datetime(year=2021, month=7, day=13)
+    assert sub.date == datetime(year=2021, month=7, day=13, tzinfo=TIMEZONE)
     assert sub.submitter == 'submitter'
     assert sub.review_status == '6'
 
@@ -220,7 +223,7 @@ def test_process_line_no_date():
     allele, sub = process_line(input_list)
     assert allele == 1
     assert sub.classification == Consequence.BENIGN
-    assert sub.date == datetime(year=1970, month=1, day=1)
+    assert sub.date == datetime(year=1970, month=1, day=1, tzinfo=TIMEZONE)
     assert sub.submitter == 'submitter'
     assert sub.review_status == '6'
 
@@ -233,16 +236,15 @@ def test_get_all_decisions(sub_stub):
     4 has one uncertain significance
     """
     allele_ids = {1, 2, 3, 4}
-    results = get_all_decisions(
-        sub_stub,
-        threshold_date=datetime(year=2018, day=1, month=1),
-        allele_ids=allele_ids,
-    )
+    results = get_all_decisions(sub_stub, allele_ids=allele_ids)
 
-    assert set(results.keys()) == {2, 4}
+    assert set(results.keys()) == {2, 3, 4}
     assert len(results.get(2)) == 2
+    assert len(results.get(3)) == 1
     assert len(results.get(4)) == 1
     for each in results[2]:
+        assert each.classification == Consequence.PATHOGENIC
+    for each in results[3]:
         assert each.classification == Consequence.PATHOGENIC
     for each in results[4]:
         assert each.classification == Consequence.UNCERTAIN
