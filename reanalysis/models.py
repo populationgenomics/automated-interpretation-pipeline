@@ -314,6 +314,7 @@ class ReportPanel(BaseModel):
 
     forced: set[str] = Field(default_factory=set)
     matched: set[str] = Field(default_factory=set)
+    gene_level_phenotype_matches: set[str] = Field(default_factory=set)
 
 
 class ReportVariant(BaseModel):
