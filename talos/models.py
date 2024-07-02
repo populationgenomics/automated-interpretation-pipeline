@@ -4,25 +4,21 @@ A home for all data models used in Talos
 
 from enum import Enum
 
-import toml
 from pydantic import BaseModel, Field
-
-from cpg_utils import to_path
 
 from talos.liftover.lift_1_0_0_to_1_0_1 import historicvariants as hv_100_to_101
 from talos.liftover.lift_1_0_0_to_1_0_1 import resultdata as rd_100_to_101
+from talos.liftover.lift_1_0_2_to_1_0_3 import resultdata as rd_102_to_103
 from talos.liftover.lift_none_to_1_0_0 import phenotypematchedpanels as pmp_none_to_1_0_0
 from talos.liftover.lift_none_to_1_0_0 import resultdata as rd_none_to_1_0_0
 from talos.static_values import get_granular_date, get_logger
 
-Talos_CONF = toml.load(str(to_path(__file__).parent / 'reanalysis_global.toml'))
-CATEGORY_DICT = Talos_CONF['categories']
 NON_HOM_CHROM = ['X', 'Y', 'MT', 'M']
 CHROM_ORDER = list(map(str, range(1, 23))) + NON_HOM_CHROM
 
 # some kind of version tracking
-CURRENT_VERSION = '1.0.2'
-ALL_VERSIONS = [None, '1.0.0', '1.0.1', '1.0.2']
+CURRENT_VERSION = '1.0.3'
+ALL_VERSIONS = [None, '1.0.0', '1.0.1', '1.0.2', '1.0.3']
 
 # ratios for use in AB testing
 MAX_WT = 0.15
@@ -332,7 +328,6 @@ class ReportVariant(BaseModel):
     sample: str
     var_data: VARIANT_MODELS
     categories: set[str] = Field(default_factory=set)
-    # is this a thing I can do?
     # todo implement this
     date_of_phenotype_match: str | None = None
     evidence_last_updated: str = Field(default=get_granular_date())
@@ -401,7 +396,7 @@ class CategoryMeta(BaseModel):
     The mapping of category names to their display names
     """
 
-    categories: dict[str, str] = Field(default=CATEGORY_DICT)
+    categories: dict[str, str] = Field(default=dict)
 
 
 class HistoricSampleVariant(BaseModel):
@@ -437,9 +432,8 @@ class ResultMeta(BaseModel):
     metadata for a result set
     """
 
-    categories: dict[str, str] = Field(default=CATEGORY_DICT)
-    cohort: str = Field(default_factory=str)
-    container: str = Field(default_factory=str)
+    categories: dict[str, str] = Field(default=dict)
+    version: str = Field(default_factory=str)
     family_breakdown: dict[str, int] = Field(default_factory=dict)
     input_file: str = Field(default_factory=str)
     panels: list[PanelShort] = Field(default_factory=list)
@@ -543,12 +537,12 @@ class Pedigree(BaseModel):
 
 # methods defining how to transition between model versions
 # if unspecified, no transition is required
-LIFTOVER_METHODS = {
+LIFTOVER_METHODS: dict = {
     PhenotypeMatchedPanels: {'None_1.0.0': pmp_none_to_1_0_0},
     PanelApp: dict(),
     HistoricPanels: dict(),
     HistoricVariants: {'1.0.0_1.0.1': hv_100_to_101},
-    ResultData: {'None_1.0.0': rd_none_to_1_0_0, '1.0.0_1.0.1': rd_100_to_101},
+    ResultData: {'None_1.0.0': rd_none_to_1_0_0, '1.0.0_1.0.1': rd_100_to_101, '1.0.2_1.0.3': rd_102_to_103},
 }
 
 
