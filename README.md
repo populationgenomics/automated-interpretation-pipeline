@@ -24,6 +24,9 @@ Analysis consists of three main phases:
 
 ## Installation
 
+> **_NOTE:_**  This repository contains some large files, tracked with [git-lfs](https://github.com/git-lfs/git-lfs). If you don't already have git-lfs installed, we recommend you install it prior to cloning this repository. The [README](large_files/README.md) for the files in question describes their source if you intend to download them separately.
+
+
 At this time the recommended way to use this tool is via Docker, building using the Dockerfile in this repository.
 
 The Dockerfile offers two builds, use the `--target` flag to specify which build you want to use. To only build the required layers, ensure `DOCKERBUILDKIT` is set to `1` in your environment.
@@ -40,7 +43,7 @@ DOCKERBUILDKIT=1 docker build --target talos_none -t talos:6.6.3  .
 A Nextflow pipeline is provided to demonstrate how to run Talos. This pipeline is designed to be run on a local machine, and requires that you have nextflow installed locally, and a docker daemon running. First, as described above, build the docker image:
 
 ```bash
-docker build --target talos_none -t talos:local_none .
+docker build --target talos_none -t talos:6.6.3 .
 ```
 
 Then, run the pipeline:
